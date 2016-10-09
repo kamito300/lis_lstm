@@ -14,21 +14,21 @@ namespace MLPlayer {
 		void OnTriggerEnter(Collider other) {
 			if (IsPlayer(other.gameObject)) {
 				other.gameObject.GetComponent<Agent> ().AddReward (rewardOnTriggerEnter);
-				//Debug.Log ("OnTriggerEnter");
+				Debug.Log ("OnTriggerEnter");
 			}
 		}
 
 		void OnTriggerExit(Collider other) {
 			if (IsPlayer(other.gameObject)) {
 				other.gameObject.GetComponent<Agent> ().AddReward (rewardOnTriggerExit);
-				//Debug.Log ("OnTriggerExit");
+				Debug.Log ("OnTriggerExit");
 			}
 		}
 
 		void OnTriggerStay(Collider other) {
 			if (IsPlayer(other.gameObject)) {
 				other.gameObject.GetComponent<Agent> ().AddReward (rewardOnTriggerStayPerFixedDeltaTime);
-				//Debug.Log ("OnTriggerStay:");
+				Debug.Log ("OnTriggerStay:");
 			}
 		}
 	}

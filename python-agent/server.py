@@ -74,7 +74,7 @@ class AgentServer(WebSocket):
 
             action = self.agent.agent_start(observation)
             interest = 0
-            self.send_action(action, stride)
+            self.send_action(action, interest)
             with open(self.log_file, 'w') as the_file:
                 the_file.write('cycle, episode_reward_sum \n')
         else:

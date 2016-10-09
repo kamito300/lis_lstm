@@ -477,6 +477,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rewardOnPushButton: 10
   door: {fileID: 0}
+  openedDoor: 20
 --- !u!54 &548527628
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1495,6 +1496,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rewardOnPushButton: 10
   door: {fileID: 0}
+  openedDoor: 20
 --- !u!54 &2028366680
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1559,6 +1561,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efe254708eee948c1b119e381f0ae635, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemPrefabs: []
   door: {fileID: 0}
   doors: []
+  itemPrefabs: []
+  closedDoor: 12

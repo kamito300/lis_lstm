@@ -25,7 +25,7 @@ namespace MLPlayer {
 
 			// string:
 			string command = System.Text.Encoding.UTF8.GetString((byte[])action [originalKey ["command"]]);
-			String interestStr = System.Text.Encoding.UTF8.GetString((byte[])action [originalKey ["interest"]]);
+			string interestStr = System.Text.Encoding.UTF8.GetString((byte[])action [originalKey ["interest"]]);
 			// int:
 			//int i = (int)action [originalKey ["command"]];
 			// float:

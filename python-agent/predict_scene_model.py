@@ -23,7 +23,7 @@ class PredictSceneModel(Chain):
 
     def __call__(self, x):
         h = self.l(x)
-        out = self.l2(x)
+        out = self.l2(h)
         return out 
 
     def interest(self, x, y):

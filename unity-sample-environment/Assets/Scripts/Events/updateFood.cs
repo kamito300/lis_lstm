@@ -1,14 +1,14 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
 namespace MLPlayer
 {
-    public class PushButton : MonoBehaviour
+    public class updateFood : MonoBehaviour
     {
-
-        [SerializeField] float rewardOnPushButton;
-        public GameObject door;
-        [SerializeField] float openedDoor;
+        [SerializeField]
+        float rewardOnPushButton;
+        [SerializeField]
+        List<GameObject> itemPrefabs;
 
         bool IsPlayer(GameObject obj)
         {
@@ -22,11 +22,11 @@ namespace MLPlayer
                 Debug.Log("Push The Button");
                 other.gameObject.GetComponent<Agent>().AddReward(rewardOnPushButton);
                 this.gameObject.GetComponent<Renderer>().materials[0].color = Color.black;
-                door = this.gameObject.transform.parent.gameObject.transform.FindChild("Door").gameObject;
-                Vector3 v = door.transform.localPosition;
-                //v.y = 22;
-                v.y = openedDoor;
-                door.transform.localPosition = v;
+                // door = this.gameObject.transform.FindChild("Door").gameObject;
+                // door = this.gameObject.transform.parent.gameObject.transform.FindChild("Door").gameObject;
+                other.gameObject.GetComponent<Agent>().state.pushedButton = true;
+                //itemPrefabs = GameObject.Find("PlusRewardItem");
+                Debug.Log(other.gameObject.GetComponent<Agent>().state.pushedButton);
             }
         }
 

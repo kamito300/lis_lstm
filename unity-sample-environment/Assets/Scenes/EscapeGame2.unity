@@ -1243,6 +1243,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rewardOnPushButton: 1
   door: {fileID: 0}
+  openedDoor: 8
 --- !u!54 &915858134
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1886,6 +1887,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rewardOnPushButton: 1
   door: {fileID: 0}
+  openedDoor: 8
 --- !u!54 &1283491264
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2076,6 +2078,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rewardOnPushButton: 1
   door: {fileID: 0}
+  openedDoor: 8
 --- !u!54 &1762933328
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2549,6 +2552,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rewardOnPushButton: 1
   door: {fileID: 0}
+  openedDoor: 8
 --- !u!54 &2028366680
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2708,10 +2712,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efe254708eee948c1b119e381f0ae635, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemPrefabs:
-  - {fileID: 142746, guid: 4ecd053992cf34b58866b793d44e5a99, type: 2}
   door: {fileID: 0}
   doors: []
+  itemPrefabs: []
+  closedDoor: 2
 --- !u!1 &2132171642
 GameObject:
   m_ObjectHideFlags: 0

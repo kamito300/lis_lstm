@@ -24,6 +24,7 @@ class QNet:
         self.num_of_actions = len(enable_controller)
         self.enable_controller = enable_controller
         self.dim = dim
+        self.scene_loss = 0
 
         print("Initializing Q-Network...")
 
@@ -33,9 +34,9 @@ class QNet:
         self.scene_model = PredictSceneModel(self.dim)
 
         if self.use_gpu >= 0:
-            self.model.to_gpu()
+            self.action_model.to_gpu()
 
-        self.model_target = copy.deepcopy(self.model)
+        self.model_target = copy.deepcopy(self.action_model)
 
         self.action_optimizer = optimizers.RMSpropGraves(lr=0.00025, alpha=0.95, momentum=0.95, eps=0.0001)
         self.action_optimizer.setup(self.action_model)
@@ -99,9 +100,11 @@ class QNet:
         return loss, q
 
     def scene_forward(self, state, state_dash):
+        error = 0
         for i in xrange(len(state[0])):
             s = Variable(state[:, i, :])
-            next_scene = self.scene_model(s)  # Get Scene-value
+            s_dash = Variable(state[:, i, :])
+            error += self.scene_model.interest(s)  # Get Scene-value
         loss = F.mean_squared_error(next_scene - state_dash)
         return loss
         
@@ -150,8 +153,9 @@ class QNet:
             # Scene Model update
             self.scene_model.reset_state()
             self.scene_optimizer.zero_grads()
-            scene_loss = self.scene_forward(s_replay, s_dash_replay)
-            scene_loss.backward()
+            self.scene_loss.backward()
+            self.scene_loss.unchain_backward()
+            self.scene_loss = 0
             self.scene_optimizer.update()
         
             # Gradient-based update
@@ -190,13 +194,11 @@ class QNet:
         return self.index_to_action(index_action), q
 
     def e_greedy_with_interest(self, state, epsilon, last_state):
-        index_action, q = e_greedy(state, epsilon)
+        index_action, q = self.e_greedy(state, epsilon)
         # return 0 to 1
-        interest = sigmoid(self.scene_model(last_state, state))
-        #if sigmoid(self.scene_model(last_state, state)) > 0.5:
-        #    interest = true
-        #else:
-        #    interest = false
+        interest = self.scene_model.interest(np.asarray(last_state, dtype=np.float32), np.asarray(state, dtype=np.float32))
+        self.scene_loss += interest
+        interest = self.sigmoid(interest)
         return index_action, q, interest
 
         

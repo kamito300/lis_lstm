@@ -6,6 +6,7 @@ namespace MLPlayer {
 		public float reward;
 		public bool endEpisode;
         public bool reachedEnd;
+        public bool pushedButton;
 		public byte[][] image;
 		public byte[][] depth;
 		public void Clear() {
@@ -14,6 +15,7 @@ namespace MLPlayer {
 			image = null;
 			depth = null;
             reachedEnd = false;
+            pushedButton = false;
 		}
 	}
 }

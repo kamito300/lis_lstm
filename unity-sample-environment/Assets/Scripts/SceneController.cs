@@ -139,7 +139,6 @@ namespace MLPlayer {
 						agent.ResetState ();
 					}
 				}
-                Debug.Log("aaa");
                 if (agents[0].state.reachedEnd)
                 {
                     Debug.Log("reached end");
@@ -184,7 +183,6 @@ namespace MLPlayer {
 
 
                 }
-                Debug.Log("bbb");
                 if (agents[0].state.reachedEnd)
                 {
                     Debug.Log("reached end");

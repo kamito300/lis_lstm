@@ -120,7 +120,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 1176298156}
-  m_RootOrder: 4
+  m_RootOrder: 0
 --- !u!23 &34690359
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -204,7 +204,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
   m_Children: []
   m_Father: {fileID: 871990552}
-  m_RootOrder: 1
+  m_RootOrder: 2
 --- !u!54 &99618442
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -479,7 +479,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 871990552}
-  m_RootOrder: 3
+  m_RootOrder: 4
 --- !u!114 &196441815
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -934,7 +934,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
   m_Children: []
   m_Father: {fileID: 871990552}
-  m_RootOrder: 2
+  m_RootOrder: 3
 --- !u!54 &633781528
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1138,11 +1138,11 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children:
+  - {fileID: 943283606}
   - {fileID: 915858129}
   - {fileID: 99618441}
   - {fileID: 633781527}
   - {fileID: 196441814}
-  - {fileID: 943283606}
   m_Father: {fileID: 644654426}
   m_RootOrder: 6
 --- !u!4 &874017638 stripped
@@ -1181,7 +1181,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 871990552}
-  m_RootOrder: 0
+  m_RootOrder: 1
 --- !u!23 &915858130
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1243,6 +1243,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rewardOnPushButton: 1
   door: {fileID: 0}
+  openedDoor: 8
 --- !u!54 &915858134
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1288,7 +1289,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 871990552}
-  m_RootOrder: 4
+  m_RootOrder: 0
 --- !u!23 &943283607
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1477,7 +1478,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 1176298156}
-  m_RootOrder: 3
+  m_RootOrder: 4
 --- !u!114 &980965299
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1564,7 +1565,6 @@ GameObject:
   - 33: {fileID: 1112606239}
   - 65: {fileID: 1112606238}
   - 23: {fileID: 1112606237}
-  - 114: {fileID: 1112606236}
   - 54: {fileID: 1112606235}
   m_Layer: 0
   m_Name: Wall Right
@@ -1585,7 +1585,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
   m_Children: []
   m_Father: {fileID: 1176298156}
-  m_RootOrder: 2
+  m_RootOrder: 3
 --- !u!54 &1112606235
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1601,17 +1601,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 126
   m_CollisionDetection: 0
---- !u!114 &1112606236
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1112606233}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: de84c71857bdc9f4d93f965c1fb7cc5a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!23 &1112606237
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1686,11 +1675,11 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children:
+  - {fileID: 34690358}
   - {fileID: 1450384460}
   - {fileID: 1915255467}
   - {fileID: 1112606234}
   - {fileID: 980965298}
-  - {fileID: 34690358}
   m_Father: {fileID: 644654426}
   m_RootOrder: 3
 --- !u!1 &1190611794
@@ -1872,7 +1861,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 1176298156}
-  m_RootOrder: 0
+  m_RootOrder: 1
 --- !u!23 &1450384461
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1934,6 +1923,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rewardOnPushButton: 1
   door: {fileID: 0}
+  openedDoor: 8
 --- !u!54 &1450384465
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2076,6 +2066,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rewardOnPushButton: 1
   door: {fileID: 0}
+  openedDoor: 8
 --- !u!54 &1762933328
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2326,7 +2317,6 @@ GameObject:
   - 33: {fileID: 1915255471}
   - 65: {fileID: 1915255470}
   - 23: {fileID: 1915255469}
-  - 114: {fileID: 1915255468}
   - 54: {fileID: 1915255472}
   m_Layer: 0
   m_Name: Wall Left
@@ -2347,18 +2337,7 @@ Transform:
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
   m_Children: []
   m_Father: {fileID: 1176298156}
-  m_RootOrder: 1
---- !u!114 &1915255468
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1915255466}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: de84c71857bdc9f4d93f965c1fb7cc5a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_RootOrder: 2
 --- !u!23 &1915255469
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2549,6 +2528,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rewardOnPushButton: 1
   door: {fileID: 0}
+  openedDoor: 8
 --- !u!54 &2028366680
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2711,6 +2691,7 @@ MonoBehaviour:
   door: {fileID: 0}
   doors: []
   itemPrefabs: []
+  closedDoor: 2
 --- !u!1 &2132171642
 GameObject:
   m_ObjectHideFlags: 0
