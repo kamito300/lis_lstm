@@ -6,12 +6,12 @@ namespace MLPlayer {
 		public float rotate;
 		public float forward;
 		public bool jump;
-        public float interest;
+                //public float interest;
 		public void Clear() {
 			rotate = 0;
 			forward = 0;
 			jump = false;
-            interest = 0;
+                        //interest = 0;
 		}
 
 		public void Set(Dictionary<System.Object, System.Object> action) {
@@ -25,7 +25,7 @@ namespace MLPlayer {
 
 			// string:
 			string command = System.Text.Encoding.UTF8.GetString((byte[])action [originalKey ["command"]]);
-			string interestStr = System.Text.Encoding.UTF8.GetString((byte[])action [originalKey ["interest"]]);
+			//string interestStr = System.Text.Encoding.UTF8.GetString((byte[])action [originalKey ["interest"]]);
 			// int:
 			//int i = (int)action [originalKey ["command"]];
 			// float:
@@ -47,7 +47,7 @@ namespace MLPlayer {
 				break;
 			}
                         
-            interest = float.Parse(interestStr);
+                        //interest = float.Parse(interestStr);
 
 		}
 	}

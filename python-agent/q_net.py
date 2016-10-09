@@ -18,7 +18,7 @@ class QNet:
     replay_size = 32  # Replay (batch) size
     target_model_update_freq = 10**4  # Target update frequancy. original: 10^4
     data_size = 10**5  # Data size of history. original: 10^6
-    hist_size = 5 #original: 4
+    hist_size = 2 #original: 4
 
     def __init__(self, use_gpu, enable_controller, dim):
         self.use_gpu = use_gpu
@@ -101,14 +101,14 @@ class QNet:
         loss = F.mean_squared_error(td_clip, zero_val)
         return loss, q
 
-    def scene_forward(self, state, state_dash):
-        error = 0
-        for i in xrange(len(state[0])):
-            s = Variable(state[:, i, :])
-            s_dash = Variable(state[:, i, :])
-            error += self.scene_model.interest(s)  # Get Scene-value
-        loss = F.mean_squared_error(next_scene - state_dash)
-        return loss
+    #def scene_forward(self, state, state_dash):
+    #    error = 0
+    #    for i in xrange(len(state[0])):
+    #        s = Variable(state[:, i, :])
+    #        s_dash = Variable(state_dash[:, i, :])
+    #        error += self.scene_model.interest(s)  # Get Scene-value
+    #    loss = F.mean_squared_error(next_scene - state_dash)
+    #    return loss
         
 
 
@@ -153,12 +153,12 @@ class QNet:
                 s_dash_replay = cuda.to_gpu(s_dash_replay)
 
             # Scene Model update
-            self.scene_model.reset_state()
+            self.scene_model.reset()
             self.scene_optimizer.zero_grads()
             self.scene_loss.backward()
             self.scene_loss.unchain_backward()
-            self.scene_loss = 0
             self.scene_optimizer.update()
+            self.scene_loss = 0
         
             # Gradient-based update
             self.action_model.reset()
@@ -200,12 +200,13 @@ class QNet:
         last_s = Variable(last_state)
         index_action, q = self.e_greedy(state, epsilon)
         # return 0 to 1
-        print("s: ", s.data.shape)
-        print("last_s: ", last_s.data.shape)
+        #print("s: ", s.data.shape)
+        #print("last_s: ", last_s.data.shape)
         #xp = self.scene_model.xp
-        interest = self.scene_model.interest(last_s, s)
+        interest = self.scene_model.interest(last_s, s) / 3000.0
         #interest = self.scene_model.interest(Variable(last_state), Variable(state))
         self.scene_loss += interest
+        #print("interest(non-sigmoid) is ", interest.data)
         interest = float(self.sigmoid(interest).data)
         return index_action, q, interest
 

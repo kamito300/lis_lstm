@@ -29,5 +29,6 @@ class PredictSceneModel(Chain):
         return out 
 
     def interest(self, x, y):
+        #return F.mean_squared_error(self(x), y)
         return F.sum(abs(self(x) - y))
 

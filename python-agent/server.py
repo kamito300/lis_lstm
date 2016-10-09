@@ -44,6 +44,7 @@ class AgentServer(WebSocket):
     reward_sum = 0
     depth_image_dim = 32 * 32
     depth_image_count = 1
+    interest_sum = 0
 
     def send_action(self, action, interest):
         dat = msgpack.packb({"command": str(action), "interest": str(interest)})
@@ -77,6 +78,8 @@ class AgentServer(WebSocket):
             self.send_action(action, interest)
             with open(self.log_file, 'w') as the_file:
                 the_file.write('cycle, episode_reward_sum \n')
+            with open("interest.log", 'w') as the_file:
+                the_file.write('cycle, episode_interest_sum \n')
         else:
             self.thread_event.wait()
             self.cycle_counter += 1
@@ -91,6 +94,10 @@ class AgentServer(WebSocket):
                     the_file.write(str(self.cycle_counter) +
                                    ',' + str(self.reward_sum) + '\n')
                 self.reward_sum = 0
+                with open("interest.log", 'a') as the_file:
+                    the_file.write(str(self.cycle_counter) + 
+                                   "," + str(self.interest_sum) + "\n")
+                self.interest_sum = 0
             else:
                 action, eps, q_now, obs_array, interest = self.agent.agent_step(reward, observation)
                 #if interest:
@@ -99,6 +106,7 @@ class AgentServer(WebSocket):
                 #    self.send_action(action)
                 self.send_action(action, interest)
                 self.agent.agent_step_update(reward, action, eps, q_now, obs_array)
+                self.interest_sum += interest
 
         self.thread_event.set()
 

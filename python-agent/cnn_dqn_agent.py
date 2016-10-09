@@ -57,13 +57,15 @@ class CnnDqnAgent(object):
         self.time = 0
         self.epsilon = 1.0  # Initial exploratoin rate
         self.q_net = QNet(self.use_gpu, self.actions, self.q_net_input_dim)
-        self.last_state = np.zeros((self.q_net.hist_size, self.q_net_input_dim), dtype=np.float32)
+        #self.state = np.zeros((self.q_net.hist_size, self.q_net_input_dim), dtype=np.float32)
+        #self.last_state = np.zeros((self.q_net.hist_size, self.q_net_input_dim), dtype=np.float32)
 
     def agent_start(self, observation):
         obs_array = self._observation_to_featurevec(observation)
 
         # Initialize State
-        self.state = np.zeros((self.q_net.hist_size, self.q_net_input_dim), dtype=np.uint8)
+        #self.state = np.zeros((self.q_net.hist_size, self.q_net_input_dim), dtype=np.uint8)
+        self.state = np.zeros((self.q_net.hist_size, self.q_net_input_dim), dtype=np.float32)
         self.state[0] = obs_array
         state_ = np.asanyarray(self.state[0].reshape(1, self.q_net_input_dim), dtype=np.float32)
         if self.use_gpu >= 0:
@@ -98,8 +100,9 @@ class CnnDqnAgent(object):
         #else:
         #    print("self.DQN.hist_size err")
 
-        np.insert(self.state, 0, obs_array) 
-        self.state = np.asanyarray(self.state[0:self.q_net.hist_size], dtype=np.uint8)
+        np.append(self.state, obs_array) 
+        #self.state = np.asanyarray(self.state[len(self.state) - self.q_net.hist_size:len(self.state)], dtype=np.uint8)
+        self.state = np.asanyarray(self.state[len(self.state) - self.q_net.hist_size:len(self.state)], dtype=np.float32)
 
         state_ = np.asanyarray(self.state[self.q_net.hist_size-1].reshape(1, self.q_net_input_dim), dtype=np.float32)
         if self.use_gpu >= 0:
@@ -119,7 +122,8 @@ class CnnDqnAgent(object):
             print("Policy is Frozen")
             eps = 0.05
 
-        last_state_ = np.asanyarray(self.last_state[self.q_net.hist_size-1].reshape(1, self.q_net_input_dim), dtype=np.float32)
+        last_state_ = np.asanyarray(self.state[self.q_net.hist_size-2].reshape(1, self.q_net_input_dim), dtype=np.float32)
+        #last_state_ = np.asanyarray(self.last_state[self.q_net.hist_size-1].reshape(1, self.q_net_input_dim), dtype=np.float32)
         if self.use_gpu >= 0:
             last_state_ = cuda.to_gpu(last_state_)
         # Generate an Action by e-greedy action selection

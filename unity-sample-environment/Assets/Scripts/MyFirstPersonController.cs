@@ -212,7 +212,8 @@ namespace UnityStandardAssets.Characters.FirstPerson
 			transform.rotation *= Quaternion.Euler (new Vector3 (0, ang, 0));
             // Read input
 			float horizontal = 0;
-			float vertical = m_agent.action.forward*(power + m_agent.action.interest) + CrossPlatformInputManager.GetAxis("Vertical");
+			//float vertical = m_agent.action.forward*(power + m_agent.action.interest * 3) + CrossPlatformInputManager.GetAxis("Vertical");
+			float vertical = m_agent.action.forward*power + CrossPlatformInputManager.GetAxis("Vertical");
 			m_Jump = m_Jump || m_agent.action.jump;
 			if (m_Jumping) {
 				m_Jump = false;
