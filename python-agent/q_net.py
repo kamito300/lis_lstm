@@ -211,5 +211,4 @@ class QNet:
         return self.enable_controller[index_of_action]
 
     def action_to_index(self, action):
-u
         return self.enable_controller.index(action)
