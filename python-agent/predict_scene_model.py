@@ -14,9 +14,11 @@ class PredictSceneModel(Chain):
             l2 = L.Linear(dim, dim),
         )
 
-    #def to_cpu(self):
+    def to_cpu(self):
+        super(PredictSceneModel, self).to_cpu()
 
-    #def to_gpu(self, device):
+    def to_gpu(self, device=None):
+        super(PredictSceneModel, self).to_gpu(device)
     
     def reset(self):
       self.l.reset_state()

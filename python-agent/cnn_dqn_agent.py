@@ -57,6 +57,7 @@ class CnnDqnAgent(object):
         self.time = 0
         self.epsilon = 1.0  # Initial exploratoin rate
         self.q_net = QNet(self.use_gpu, self.actions, self.q_net_input_dim)
+        self.last_state = np.zeros((self.q_net.hist_size, self.q_net_input_dim), dtype=np.float32)
 
     def agent_start(self, observation):
         obs_array = self._observation_to_featurevec(observation)
@@ -118,8 +119,12 @@ class CnnDqnAgent(object):
             print("Policy is Frozen")
             eps = 0.05
 
+        last_state_ = np.asanyarray(self.last_state[self.q_net.hist_size-1].reshape(1, self.q_net_input_dim), dtype=np.float32)
+        if self.use_gpu >= 0:
+            last_state_ = cuda.to_gpu(last_state_)
         # Generate an Action by e-greedy action selection
-        action, q_now, interest = self.q_net.e_greedy_with_interest(state_, eps, self.last_state)
+        action, q_now, interest = self.q_net.e_greedy_with_interest(state_, eps, last_state_)
+
         print("interest is %f" % interest)
           
         return action, eps, q_now, obs_array, interest

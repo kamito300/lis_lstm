@@ -7,6 +7,7 @@ import chainer.functions as F
 import chainer.links as L
 from predict_action_model import PredictActionModel
 from predict_scene_model import PredictSceneModel
+import math
 
 
 class QNet:
@@ -17,7 +18,7 @@ class QNet:
     replay_size = 32  # Replay (batch) size
     target_model_update_freq = 10**4  # Target update frequancy. original: 10^4
     data_size = 10**5  # Data size of history. original: 10^6
-    hist_size = 10 #original: 4
+    hist_size = 5 #original: 4
 
     def __init__(self, use_gpu, enable_controller, dim):
         self.use_gpu = use_gpu
@@ -35,6 +36,7 @@ class QNet:
 
         if self.use_gpu >= 0:
             self.action_model.to_gpu()
+            self.scene_model.to_gpu()
 
         self.model_target = copy.deepcopy(self.action_model)
 
@@ -194,15 +196,21 @@ class QNet:
         return self.index_to_action(index_action), q
 
     def e_greedy_with_interest(self, state, epsilon, last_state):
+        s = Variable(state)
+        last_s = Variable(last_state)
         index_action, q = self.e_greedy(state, epsilon)
         # return 0 to 1
-        interest = self.scene_model.interest(np.asarray(last_state, dtype=np.float32), np.asarray(state, dtype=np.float32))
+        print("s: ", s.data.shape)
+        print("last_s: ", last_s.data.shape)
+        #xp = self.scene_model.xp
+        interest = self.scene_model.interest(last_s, s)
+        #interest = self.scene_model.interest(Variable(last_state), Variable(state))
         self.scene_loss += interest
-        interest = self.sigmoid(interest)
+        interest = float(self.sigmoid(interest).data)
         return index_action, q, interest
 
         
-    def sigmoid(z):
+    def sigmoid(self, z):
         return 1 / (1 + math.e**(-z)) 
         
 
