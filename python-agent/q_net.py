@@ -5,9 +5,7 @@ import numpy as np
 from chainer import Chain, cuda, FunctionSet, Variable, optimizers
 import chainer.functions as F
 import chainer.links as L
-from predict_action_model import PredictActionModel
-from predict_scene_model import PredictSceneModel
-import math
+from rnn import RNN
 
 
 class QNet:
@@ -18,33 +16,27 @@ class QNet:
     replay_size = 32  # Replay (batch) size
     target_model_update_freq = 10**4  # Target update frequancy. original: 10^4
     data_size = 10**5  # Data size of history. original: 10^6
-    hist_size = 2 #original: 4
+    hist_size = 10 #original: 4
 
     def __init__(self, use_gpu, enable_controller, dim):
         self.use_gpu = use_gpu
         self.num_of_actions = len(enable_controller)
         self.enable_controller = enable_controller
         self.dim = dim
-        self.scene_loss = 0
 
         print("Initializing Q-Network...")
 
         hidden_dim = 256
 
-        self.action_model = PredictActionModel(self.dim, hidden_dim, self.num_of_actions)
-        self.scene_model = PredictSceneModel(self.dim)
+        self.model = RNN(self.dim, hidden_dim, self.num_of_actions)
 
         if self.use_gpu >= 0:
-            self.action_model.to_gpu()
-            self.scene_model.to_gpu()
+            self.model.to_gpu()
 
-        self.model_target = copy.deepcopy(self.action_model)
+        self.model_target = copy.deepcopy(self.model)
 
-        self.action_optimizer = optimizers.RMSpropGraves(lr=0.00025, alpha=0.95, momentum=0.95, eps=0.0001)
-        self.action_optimizer.setup(self.action_model)
-
-        self.scene_optimizer = optimizers.RMSpropGraves(lr=0.00025, alpha=0.95, momentum=0.95, eps=0.0001)
-        self.scene_optimizer.setup(self.scene_model)
+        self.optimizer = optimizers.RMSpropGraves(lr=0.00025, alpha=0.95, momentum=0.95, eps=0.0001)
+        self.optimizer.setup(self.model)
 
         # History Data :  D=[s, a, r, s_dash, end_episode_flag]
         self.d = [np.zeros((self.data_size, self.hist_size, self.dim), dtype=np.uint8),
@@ -53,7 +45,7 @@ class QNet:
                   np.zeros((self.data_size, self.hist_size, self.dim), dtype=np.uint8),
                   np.zeros((self.data_size, 1), dtype=np.bool)]
 
-    def action_forward(self, state, action, reward, state_dash, episode_end):
+    def forward(self, state, action, reward, state_dash, episode_end):
         num_of_batch = state.shape[0]
 
         for i in xrange(len(state[0])):
@@ -101,17 +93,6 @@ class QNet:
         loss = F.mean_squared_error(td_clip, zero_val)
         return loss, q
 
-    #def scene_forward(self, state, state_dash):
-    #    error = 0
-    #    for i in xrange(len(state[0])):
-    #        s = Variable(state[:, i, :])
-    #        s_dash = Variable(state_dash[:, i, :])
-    #        error += self.scene_model.interest(s)  # Get Scene-value
-    #    loss = F.mean_squared_error(next_scene - state_dash)
-    #    return loss
-        
-
-
     def stock_experience(self, time,
                         state, action, reward, state_dash,
                         episode_end_flag):
@@ -152,29 +133,21 @@ class QNet:
                 s_replay = cuda.to_gpu(s_replay)
                 s_dash_replay = cuda.to_gpu(s_dash_replay)
 
-            # Scene Model update
-            self.scene_model.reset()
-            self.scene_optimizer.zero_grads()
-            self.scene_loss.backward()
-            self.scene_loss.unchain_backward()
-            self.scene_optimizer.update()
-            self.scene_loss = 0
-        
             # Gradient-based update
-            self.action_model.reset()
-            self.action_optimizer.zero_grads()
-            loss, _ = self.action_forward(s_replay, a_replay, r_replay, s_dash_replay, episode_end_replay)
+            self.model.reset()
+            self.optimizer.zero_grads()
+            loss, _ = self.forward(s_replay, a_replay, r_replay, s_dash_replay, episode_end_replay)
             loss.backward()
-            self.action_optimizer.update()
+            self.optimizer.update()
 
     def q_func(self, state):
-        q = self.action_model(state)
+        q = self.model(state)
         #h4 = F.relu(self.model.l4(state))
         #q = self.model.q_value(h4 / 255.0)
         return q
 
     def q_func_target(self, state):
-        q = self.action_model_target(state)
+        q = self.model(state)
         #h4 = F.relu(self.model_target.l4(state / 255.0))
         #q = self.model_target.q_value(h4)
         return q
@@ -195,28 +168,8 @@ class QNet:
             print("#Greedy"),
         return self.index_to_action(index_action), q
 
-    def e_greedy_with_interest(self, state, epsilon, last_state):
-        s = Variable(state)
-        last_s = Variable(last_state)
-        index_action, q = self.e_greedy(state, epsilon)
-        # return 0 to 1
-        #print("s: ", s.data.shape)
-        #print("last_s: ", last_s.data.shape)
-        #xp = self.scene_model.xp
-        interest = self.scene_model.interest(last_s, s) / 3000.0
-        #interest = self.scene_model.interest(Variable(last_state), Variable(state))
-        self.scene_loss += interest
-        #print("interest(non-sigmoid) is ", interest.data)
-        interest = float(self.sigmoid(interest).data)
-        return index_action, q, interest
-
-        
-    def sigmoid(self, z):
-        return 1 / (1 + math.e**(-z)) 
-        
-
     def target_model_update(self):
-        self.action_model_target = copy.deepcopy(self.action_model)
+        self.model_target = copy.deepcopy(self.model)
 
     def index_to_action(self, index_of_action):
         return self.enable_controller[index_of_action]

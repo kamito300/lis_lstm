@@ -44,10 +44,9 @@ class AgentServer(WebSocket):
     reward_sum = 0
     depth_image_dim = 32 * 32
     depth_image_count = 1
-    interest_sum = 0
 
-    def send_action(self, action, interest):
-        dat = msgpack.packb({"command": str(action), "interest": str(interest)})
+    def send_action(self, action):
+        dat = msgpack.packb({"command": str(action)})
         self.send(dat, binary=True)
 
     def received_message(self, m):
@@ -74,12 +73,9 @@ class AgentServer(WebSocket):
                 depth_image_dim=self.depth_image_dim * self.depth_image_count)
 
             action = self.agent.agent_start(observation)
-            interest = 0
-            self.send_action(action, interest)
+            self.send_action(action)
             with open(self.log_file, 'w') as the_file:
                 the_file.write('cycle, episode_reward_sum \n')
-            with open("interest.log", 'w') as the_file:
-                the_file.write('cycle, episode_interest_sum \n')
         else:
             self.thread_event.wait()
             self.cycle_counter += 1
@@ -88,25 +84,15 @@ class AgentServer(WebSocket):
             if end_episode:
                 self.agent.agent_end(reward)
                 action = self.agent.agent_start(observation)  # TODO
-                interest = 0
-                self.send_action(action, interest)
+                self.send_action(action)
                 with open(self.log_file, 'a') as the_file:
                     the_file.write(str(self.cycle_counter) +
                                    ',' + str(self.reward_sum) + '\n')
                 self.reward_sum = 0
-                with open("interest.log", 'a') as the_file:
-                    the_file.write(str(self.cycle_counter) + 
-                                   "," + str(self.interest_sum) + "\n")
-                self.interest_sum = 0
             else:
-                action, eps, q_now, obs_array, interest = self.agent.agent_step(reward, observation)
-                #if interest:
-                #    self.action(2)
-                #else:
-                #    self.send_action(action)
-                self.send_action(action, interest)
+                action, eps, q_now, obs_array = self.agent.agent_step(reward, observation)
+                self.send_action(action)
                 self.agent.agent_step_update(reward, action, eps, q_now, obs_array)
-                self.interest_sum += interest
 
         self.thread_event.set()
 
