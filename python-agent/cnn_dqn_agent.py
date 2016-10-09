@@ -68,7 +68,8 @@ class CnnDqnAgent(object):
         if self.use_gpu >= 0:
             state_ = cuda.to_gpu(state_)
         # reset lstm state
-        self.q_net.model.reset()
+        self.q_net.action_model.reset()
+        self.q_net.scene_model.reset()
 
         # Generate an Action e-greedy
         action, q_now = self.q_net.e_greedy(state_, self.epsilon)
@@ -118,9 +119,10 @@ class CnnDqnAgent(object):
             eps = 0.05
 
         # Generate an Action by e-greedy action selection
-        action, q_now = self.q_net.e_greedy(state_, eps)
-
-        return action, eps, q_now, obs_array
+        action, q_now, interest = self.q_net.e_greedy_with_interest(state_, eps, self.last_state)
+        print("interest is %f" % interest)
+          
+        return action, eps, q_now, obs_array, interest
 
     def agent_step_update(self, reward, action, eps, q_now, obs_array):
         # Learning Phase

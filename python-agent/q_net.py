@@ -5,7 +5,8 @@ import numpy as np
 from chainer import Chain, cuda, FunctionSet, Variable, optimizers
 import chainer.functions as F
 import chainer.links as L
-from rnn import RNN
+from predict_action_model import PredictActionModel
+from predict_scene_model import PredictSceneModel
 
 
 class QNet:
@@ -28,15 +29,19 @@ class QNet:
 
         hidden_dim = 256
 
-        self.model = RNN(self.dim, hidden_dim, self.num_of_actions)
+        self.action_model = PredictActionModel(self.dim, hidden_dim, self.num_of_actions)
+        self.scene_model = PredictSceneModel(self.dim)
 
         if self.use_gpu >= 0:
             self.model.to_gpu()
 
         self.model_target = copy.deepcopy(self.model)
 
-        self.optimizer = optimizers.RMSpropGraves(lr=0.00025, alpha=0.95, momentum=0.95, eps=0.0001)
-        self.optimizer.setup(self.model)
+        self.action_optimizer = optimizers.RMSpropGraves(lr=0.00025, alpha=0.95, momentum=0.95, eps=0.0001)
+        self.action_optimizer.setup(self.action_model)
+
+        self.scene_optimizer = optimizers.RMSpropGraves(lr=0.00025, alpha=0.95, momentum=0.95, eps=0.0001)
+        self.scene_optimizer.setup(self.scene_model)
 
         # History Data :  D=[s, a, r, s_dash, end_episode_flag]
         self.d = [np.zeros((self.data_size, self.hist_size, self.dim), dtype=np.uint8),
@@ -45,7 +50,7 @@ class QNet:
                   np.zeros((self.data_size, self.hist_size, self.dim), dtype=np.uint8),
                   np.zeros((self.data_size, 1), dtype=np.bool)]
 
-    def forward(self, state, action, reward, state_dash, episode_end):
+    def action_forward(self, state, action, reward, state_dash, episode_end):
         num_of_batch = state.shape[0]
 
         for i in xrange(len(state[0])):
@@ -93,6 +98,15 @@ class QNet:
         loss = F.mean_squared_error(td_clip, zero_val)
         return loss, q
 
+    def scene_forward(self, state, state_dash):
+        for i in xrange(len(state[0])):
+            s = Variable(state[:, i, :])
+            next_scene = self.scene_model(s)  # Get Scene-value
+        loss = F.mean_squared_error(next_scene - state_dash)
+        return loss
+        
+
+
     def stock_experience(self, time,
                         state, action, reward, state_dash,
                         episode_end_flag):
@@ -133,21 +147,28 @@ class QNet:
                 s_replay = cuda.to_gpu(s_replay)
                 s_dash_replay = cuda.to_gpu(s_dash_replay)
 
+            # Scene Model update
+            self.scene_model.reset_state()
+            self.scene_optimizer.zero_grads()
+            scene_loss = self.scene_forward(s_replay, s_dash_replay)
+            scene_loss.backward()
+            self.scene_optimizer.update()
+        
             # Gradient-based update
-            self.model.reset()
-            self.optimizer.zero_grads()
-            loss, _ = self.forward(s_replay, a_replay, r_replay, s_dash_replay, episode_end_replay)
+            self.action_model.reset()
+            self.action_optimizer.zero_grads()
+            loss, _ = self.action_forward(s_replay, a_replay, r_replay, s_dash_replay, episode_end_replay)
             loss.backward()
-            self.optimizer.update()
+            self.action_optimizer.update()
 
     def q_func(self, state):
-        q = self.model(state)
+        q = self.action_model(state)
         #h4 = F.relu(self.model.l4(state))
         #q = self.model.q_value(h4 / 255.0)
         return q
 
     def q_func_target(self, state):
-        q = self.model(state)
+        q = self.action_model_target(state)
         #h4 = F.relu(self.model_target.l4(state / 255.0))
         #q = self.model_target.q_value(h4)
         return q
@@ -168,11 +189,27 @@ class QNet:
             print("#Greedy"),
         return self.index_to_action(index_action), q
 
+    def e_greedy_with_interest(self, state, epsilon, last_state):
+        index_action, q = e_greedy(state, epsilon)
+        # return 0 to 1
+        interest = sigmoid(self.scene_model(last_state, state))
+        #if sigmoid(self.scene_model(last_state, state)) > 0.5:
+        #    interest = true
+        #else:
+        #    interest = false
+        return index_action, q, interest
+
+        
+    def sigmoid(z):
+        return 1 / (1 + math.e**(-z)) 
+        
+
     def target_model_update(self):
-        self.model_target = copy.deepcopy(self.model)
+        self.action_model_target = copy.deepcopy(self.action_model)
 
     def index_to_action(self, index_of_action):
         return self.enable_controller[index_of_action]
 
     def action_to_index(self, action):
+u
         return self.enable_controller.index(action)

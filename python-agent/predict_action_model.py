@@ -7,9 +7,9 @@ import chainer.functions as F
 import chainer.links as L
 
 # RNN model
-class RNN(Chain):
+class PredictActionModel(Chain):
     def __init__(self, in_dim, out_dim, num_of_actions):
-        super(RNN, self).__init__(
+        super(PredictActionModel, self).__init__(
             l = L.LSTM(in_dim, out_dim),
             q_value = L.Linear(out_dim, num_of_actions),
         )
